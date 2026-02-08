@@ -145,7 +145,7 @@ def summarize_with_llm(query, search_results):
 
     try:
         response = llm_client.chat.completions.create(
-            model="deepseek-chat",
+            model="gpt-3.5-turbo",  # 与 news_generator.py 保持一致
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}

@@ -3,6 +3,37 @@
 从 image_prompts.py 改编，移除占星元素，改为新闻场景可视化
 """
 
+def smart_truncate(text, max_length=80):
+    """
+    智能截断文本，优先在标点符号处断句
+
+    :param text: 原始文本
+    :param max_length: 最大长度
+    :return: 截断后的文本
+    """
+    if len(text) <= max_length:
+        return text
+
+    # 优先在句号、感叹号、问号处截断
+    for sep in ['。', '！', '？', '；']:
+        pos = text[:max_length].rfind(sep)
+        if pos > max_length * 0.6:  # 至少保留60%的内容
+            return text[:pos+1]
+
+    # 其次在逗号、顿号处截断
+    for sep in ['，', '、']:
+        pos = text[:max_length].rfind(sep)
+        if pos > max_length * 0.6:
+            return text[:pos+1] + '...'
+
+    # 最后在空格处截断
+    pos = text[:max_length].rfind(' ')
+    if pos > max_length * 0.6:
+        return text[:pos] + '...'
+
+    # 实在找不到合适的位置，直接截断并加省略号
+    return text[:max_length-3] + '...'
+
 def generate_news_image_prompts(news_data):
     """
     根据新闻数据生成3个场景图的 Prompt
@@ -29,10 +60,10 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
     headline = news_data.get("headline", "")
     timeline = news_data.get("timeline", {})
 
-    # 提取三幕内容
-    cause = timeline.get("cause", "")[:80]
-    development = timeline.get("development", "")[:80]
-    impact = timeline.get("impact", "")[:80]
+    # 提取三幕内容 - 智能截断
+    cause = smart_truncate(timeline.get("cause", ""), max_length=80)
+    development = smart_truncate(timeline.get("development", ""), max_length=80)
+    impact = smart_truncate(timeline.get("impact", ""), max_length=80)
 
     prompts = []
 
@@ -40,7 +71,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
     prompt_cause = f"""{base_style}
 **CONTENT TO RENDER (Text must be legible hand-written style):**
 1. Top Title: "📰 {headline}"
-2. Section Label: "起因" (Bold hand-lettering)
+2. Section Label: "直击现场" (Bold hand-lettering)
 3. Brief Text (Write this on the paper): "{cause}"
 
 **VISUAL COMPOSITION:**
@@ -56,7 +87,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
     prompt_development = f"""{base_style}
 **CONTENT TO RENDER (Text must be legible hand-written style):**
 1. Top Title: "📰 {headline}"
-2. Section Label: "发展" (Bold hand-lettering)
+2. Section Label: "精彩瞬间" (Bold hand-lettering)
 3. Brief Text (Write this on the paper): "{development}"
 
 **VISUAL COMPOSITION:**
@@ -72,7 +103,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
     prompt_impact = f"""{base_style}
 **CONTENT TO RENDER (Text must be legible hand-written style):**
 1. Top Title: "📰 {headline}"
-2. Section Label: "影响" (Bold hand-lettering)
+2. Section Label: "深度观察" (Bold hand-lettering)
 3. Brief Text (Write this on the paper): "{impact}"
 
 **VISUAL COMPOSITION:**
