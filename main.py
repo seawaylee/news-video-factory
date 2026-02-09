@@ -11,6 +11,7 @@ from modules.web_researcher import research_topic
 from modules.news_generator import generate_news_analysis
 from modules.news_script import generate_news_script
 from modules.image_prompts import generate_news_image_prompts
+from modules.content_reviewer import review_content # 新增审校模块
 from modules.copy_generator import generate_news_copy
 from modules.audio_generator import generate_audio
 from modules.image_generator import generate_images
@@ -119,13 +120,23 @@ def main():
     # 5. 生成图片提示词
     print(f"\n🎨 生成图片提示词...")
     prompts = generate_news_image_prompts(news_data)
+
+    # 6. 生成脚本
+    print(f"\n🎙️  生成播客脚本...")
+    script_tracks = generate_news_script(news_data)
+
+    # 7. 启动内容审校 (AI Reviewer)
+    print(f"\n⚖️  正在进行逻辑与事实审校...")
+    script_tracks, prompts = review_content(topic, script_tracks, prompts)
+
+    # 保存审校后的提示词
     for i, prompt in enumerate(prompts):
         prompt_path = os.path.join(dirs["images"], f"prompt_act{i+1}.txt")
         with open(prompt_path, "w", encoding="utf-8") as f:
             f.write(prompt)
-    print(f"   ✅ 提示词已保存")
+    print(f"   ✅ 提示词已保存 (已审校)")
 
-    # 6. 生成图片
+    # 8. 生成图片
     print(f"\n🖼️  生成封面图...")
     image_paths = generate_images(topic_slug, prompts, dirs["images"])
     # 确保路径排序正确
@@ -134,9 +145,8 @@ def main():
     if len(image_paths) < 3:
         print(f"   ⚠️ 图片生成不完整 ({len(image_paths)}/3)，可能无法生成视频")
 
-    # 7. 生成脚本和音频
-    print(f"\n🎙️  生成播客脚本和音频...")
-    script_tracks = generate_news_script(news_data)
+    # 9. 生成音频
+    print(f"\n🔊  生成播客音频...")
     audio_paths = []
 
     for i, track_text in enumerate(script_tracks):
@@ -144,7 +154,7 @@ def main():
         script_path = os.path.join(dirs["audio"], f"script_act{track_idx}.txt")
         audio_path = os.path.join(dirs["audio"], f"act{track_idx}.mp3")
 
-        # 保存脚本
+        # 保存脚本 (已审校)
         with open(script_path, "w", encoding="utf-8") as f:
             f.write(track_text)
 
@@ -157,7 +167,7 @@ def main():
 
         audio_paths.append(audio_path)
 
-    # 8. 合成视频
+    # 10. 合成视频
     if len(image_paths) == 3 and len(audio_paths) == 3:
         video_path = os.path.join(dirs["root"], f"{topic_slug}_新闻视频.mp4")
         if not os.path.exists(video_path):

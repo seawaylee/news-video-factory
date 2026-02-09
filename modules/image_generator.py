@@ -33,32 +33,41 @@ def generate_images(topic_name, prompts, output_dir):
             generated_paths.append(output_path)
             continue
 
-        try:
-            print(f"      🎨 调用 NanoBanana Pro 生成中...")
-            # 调用生图 API
-            response = client.images.generate(
-                model="NanoBanana Pro",
-                prompt=prompt,
-                n=1,
-                size="1024x1792", # 9:16 竖屏
-                response_format="b64_json"
-            )
+        # 重试机制: 最多尝试 4 次 (1次初始 + 3次重试)
+        max_retries = 3
+        for attempt in range(max_retries + 1):
+            try:
+                print(f"      🎨 调用 NanoBanana Pro 生成中... (尝试 {attempt+1}/{max_retries+1})")
+                # 调用生图 API
+                response = client.images.generate(
+                    model="NanoBanana Pro",
+                    prompt=prompt,
+                    n=1,
+                    size="1024x1792", # 9:16 竖屏
+                    response_format="b64_json"
+                )
 
-            # 保存图片
-            if response.data[0].b64_json:
-                image_data = base64.b64decode(response.data[0].b64_json)
-                with open(output_path, "wb") as f:
-                    f.write(image_data)
-                print(f"      ✅ 图片已保存: {file_name}")
-                generated_paths.append(output_path)
-            elif response.data[0].url:
-                img_res = requests.get(response.data[0].url)
-                with open(output_path, "wb") as f:
-                    f.write(img_res.content)
-                print(f"      ✅ 图片已下载: {file_name}")
-                generated_paths.append(output_path)
+                # 保存图片
+                if response.data[0].b64_json:
+                    image_data = base64.b64decode(response.data[0].b64_json)
+                    with open(output_path, "wb") as f:
+                        f.write(image_data)
+                    print(f"      ✅ 图片已保存: {file_name}")
+                    generated_paths.append(output_path)
+                    break # 成功，跳出重试循环
+                elif response.data[0].url:
+                    img_res = requests.get(response.data[0].url)
+                    with open(output_path, "wb") as f:
+                        f.write(img_res.content)
+                    print(f"      ✅ 图片已下载: {file_name}")
+                    generated_paths.append(output_path)
+                    break # 成功，跳出重试循环
 
-        except Exception as e:
-            print(f"      ❌ 第 {i+1} 张图片生成失败: {e}")
+            except Exception as e:
+                print(f"      ❌ 第 {i+1} 张图片生成失败 (尝试 {attempt+1}): {e}")
+                if attempt < max_retries:
+                    print("      🔄 正在重试...")
+                else:
+                    print("      ❌ 重试次数耗尽，放弃生成该图片。")
 
     return generated_paths

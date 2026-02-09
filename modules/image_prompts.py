@@ -44,7 +44,7 @@ def generate_news_image_prompts(news_data):
     """
 
     # 基础风格 - 保持手绘风格，改为新闻场景
-    base_style = """(masterpiece, best quality), (vertical:1.4), (aspect ratio: 9:16), (sketch style), (hand drawn), (journalistic infographic)
+    base_style = """(masterpiece, best quality), (vertical:1.4), (aspect ratio: 9:16), (sketch style), (hand drawn), (journalistic infographic), (Chinese New Year theme), (Festive atmosphere)
 Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH style infographic poster.
 
 **CRITICAL: HAND-DRAWN AESTHETIC (Editorial Illustration Style)**
@@ -54,6 +54,8 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
 - NO digital smoothness, NO vector graphics.
 - Shading: crosshatching, stippling, charcoal smudges only.
 - Background: Hand-drawn vintage paper texture (Beige/Parchment).
+- Dominant Color: CHINESE RED and GOLD.
+- **IMPORTANT**: Leave SIGNIFICANT margin (padding) around the text and central illustration to prevent cropping on mobile screens (TikTok/Douyin). Keep content CENTERED and SAFE from edges.
 """
 
     topic = news_data.get("topic", "热点新闻")
@@ -78,7 +80,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
 - Center: A detailed sketch symbolizing the event's origin or trigger point.
 - Scene suggestion: Document, meeting room, announcement scene, or symbolic representation of the cause.
 - Layout: Infographic style with text sections separated by hand-drawn dividers.
-- Color Palette: Warm Sepia, Charcoal Grey, Pencil Lead Black.
+- Color Palette: Chinese Red, Gold, Warm Sepia, Charcoal Grey.
 - Add subtle icons or symbols related to the news topic (hand-drawn style).
 """
     prompts.append(prompt_cause)
@@ -94,7 +96,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
 - Center: A detailed sketch showing the progression or key turning point.
 - Scene suggestion: Timeline visualization, multiple actors interacting, or process illustration.
 - Layout: Infographic style with text sections separated by hand-drawn dividers.
-- Color Palette: Cool Blue, Navy, Pencil Lead Black.
+- Color Palette: Vibrant Red, Orange, Gold, Pencil Lead Black.
 - Add arrows or flow indicators showing progression (hand-drawn style).
 """
     prompts.append(prompt_development)
@@ -110,7 +112,7 @@ Create a TALL VERTICAL PORTRAIT IMAGE (Aspect Ratio 9:16) HAND-DRAWN SKETCH styl
 - Center: A detailed sketch illustrating the impact or consequences.
 - Scene suggestion: Ripple effect, affected parties, outcome visualization, or future implications.
 - Layout: Infographic style with text sections separated by hand-drawn dividers.
-- Color Palette: Emerald Green, Gold highlights, Pencil Lead Black.
+- Color Palette: Deep Red, Festive Gold, Emerald accents.
 - Add impact indicators or result symbols (hand-drawn style).
 """
     prompts.append(prompt_impact)
